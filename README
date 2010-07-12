@@ -1,0 +1,1 @@
+Currently works only with SBCL due to loack of external-formats of flexi-streams
