@@ -150,12 +150,12 @@ It's usually instantiated by the MAKE-IMAP function and activated by CMD-CONNECT
                                          (format nil
                                                  "~a~%~a"
                                                  (subseq line 0 (- (length line) (length continuation)))
-                                                 (sb-ext:octets-to-string (coerce (loop for i from 1 to continuation-bytes
+                                                 (octets-to-string (coerce (loop for i from 1 to continuation-bytes
                                                                                      for byte = (read-byte s nil)
                                                                                      when byte
                                                                                      collect byte)
                                                                                   '(vector (unsigned-byte 8)))
-                                                                          :external-format :latin-1)))
+                                                                          :external-format :iso-8859-1)))
                                     line)
                                 (format nil "~%"))))
 
@@ -182,11 +182,11 @@ It's usually instantiated by the MAKE-IMAP function and activated by CMD-CONNECT
                      while (not (%eol-p is byte))
                      when byte
                      collect byte)))
-    (sb-ext:octets-to-string (coerce (if (equal 10 #|#\Linefeed|# (first (last ch-list))) 
-                                         (butlast ch-list) 
-                                         ch-list) 
-                                     '(vector (unsigned-byte 8)))
-                             :external-format :latin-1)))
+    (octets-to-string (coerce (if (equal 10 #|#\Linefeed|# (first (last ch-list))) 
+                                  (butlast ch-list) 
+                                  ch-list) 
+                              '(vector (unsigned-byte 8)))
+                      :external-format :iso-8859-1)))
 
 (defmethod imap-socket-read-reply ((is imap-socket))
   (let* ((message-id (imap-socket-message-id is))

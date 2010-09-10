@@ -32,11 +32,12 @@
 
 
 (defun octets-to-string (vector &key (external-format :utf-8) (start 0) end)
-  (sb-ext:octets-to-string vector :external-format external-format :start start :end end))
+  (babel:octets-to-string vector :encoding external-format :start start 
+                          :end end))
 
-(defun string-to-octets (string &key (external-format :utf-8) (start 0) end null-terminate)
-  (sb-ext:string-to-octets string :external-format external-format :start start :end end :null-terminate null-terminate))
-
+(defun string-to-octets (string &key (external-format :utf-8) (start 0) end)
+  (babel:string-to-octets string :encoding external-format :start start 
+                          :end end))
 
 (defun starts-with (start str)
   "Functions that checks if the given STR starts with START regardless char case"
@@ -48,7 +49,7 @@
   (and (>= (length str) (length end)) 
        (string-equal end str :start2 (- (length str) (length end)))))
 
-(defun %base64-decode (string &key (external-format "utf-8") (stream nil))
+(defun %base64-decode (string &key (external-format :utf-8) (stream nil))
   (if stream
       (base64:base64-string-to-stream string :stream stream)
       (if external-format
@@ -58,13 +59,13 @@
                                                         external-format))
           (base64:base64-string-to-usb8-array string))))
 
-(defun %quoted-char-decode (char-code &key (external-format "utf-8"))
+(defun %quoted-char-decode (char-code &key (external-format :utf-8))
   (format nil "~a" (octets-to-string (coerce (list char-code) '(vector (unsigned-byte 8))) 
                                             :external-format (if (stringp external-format) 
                                                                  (intern (string-upcase external-format) :keyword)
                                                                  external-format))))
 
-(defun %quoted-decode (string &key (external-format "utf-8") (attribute-p t))
+(defun %quoted-decode (string &key (external-format :utf-8) (attribute-p t))
   (let ((sentence (or (and attribute-p (cl-ppcre:regex-replace-all "_" string " "))
                       (cl-ppcre:regex-replace-all "=\\n" string ""))))
     (cl-ppcre:regex-replace-all "=([0-9,A-F]{2})"

@@ -509,7 +509,8 @@ On failure a condition of type OPERATIONAL-ERROR or SERVER-ERROR will be signale
                 (or (and flags (format nil "~a" flags)) "")
                 (or date "")
                 (format nil "{~d}" (length message))) ;; we don't send the message as is but we'll transmit it as a continuation
-  (multiple-value-bind (reply result-op result-op-description) (imap-socket-read-reply is)
+  (multiple-value-bind (reply result-op result-op-description) 
+      (%read-line is) ;;(imap-socket-read-append-reply is)
     (if (starts-with "+" (first reply))
         (progn
           (let ((s (imap-socket-socket is)))
