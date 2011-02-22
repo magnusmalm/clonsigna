@@ -31,8 +31,8 @@
 (in-package :clonsigna)
 
 (defgeneric cmd-connect (imap-socket) 
-  (:documentation "This function is requiret to connect an IMAP-SOCKET object to an IMAP server.
-Depending of the passed parameter it can connect via IMAP or IMAP over ssl.
+  (:documentation "This function is required to connect an IMAP-SOCKET object to an IMAP server.
+Depending on the passed parameter it can connect via IMAP or IMAP over ssl.
 After the connection has been succeded. The capabilities slot of the parameter object passed is filled.
 
 Return: Returns plist of capabilities got from the server like the following:
@@ -501,6 +501,11 @@ On failure a condition of type OPERATIONAL-ERROR or SERVER-ERROR will be signale
   (imap-socket-send-command is :unsubscribe (if (pathnamep mailbox-name) (%pathname-to-mailbox is mailbox-name) mailbox-name))
   (imap-socket-read-reply is))
 
+(defmethod cmd-lsub ((is imap-socket) reference-name mailbox-name)
+  (imap-socket-send-command is :lsub
+                (or (and reference-name (%pathname-to-mailbox is reference-name t)) "\"\"")
+                (or (and mailbox-name (%pathname-to-mailbox is mailbox-name)) "\"\""))
+  (imap-socket-read-reply is))
 
 ;;TODO move command continuation
 (defmethod cmd-append ((is imap-socket) mailbox-name message &key (flags nil) (date nil))
@@ -510,7 +515,7 @@ On failure a condition of type OPERATIONAL-ERROR or SERVER-ERROR will be signale
                 (or date "")
                 (format nil "{~d}" (length message))) ;; we don't send the message as is but we'll transmit it as a continuation
   (multiple-value-bind (reply result-op result-op-description) 
-      (%read-line is) ;;(imap-socket-read-append-reply is)
+      (%read-line is)
     (if (starts-with "+" (first reply))
         (progn
           (let ((s (imap-socket-socket is)))

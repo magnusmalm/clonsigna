@@ -85,12 +85,30 @@ The result should be assigned to the CAPABILITIES slot of an IMAP-SOCKET object.
   \"INBOX.sent-mail\")
  \(:NAME-ATTRIBUTES \(\"HasNoChildren\") :HIERARCHY-DELIMITER \".\" :NAME
   \"INBOX.Sent\"))"
-  (let ((start "* LIST ")
+  (%parse-list "LIST" reply))
+
+(defun parse-lsub (reply)
+  "This function is used to parse the result of CMD-LSUB and produces a plist like the following:
+
+\(\(:NAME-ATTRIBUTES \(\"HasNoChildren\") :HIERARCHY-DELIMITER \".\" :NAME
+  \"INBOX.Trash\")
+ \(:NAME-ATTRIBUTES \(\"HasNoChildren\") :HIERARCHY-DELIMITER \".\" :NAME
+  \"INBOX.maildir\")
+ \(:NAME-ATTRIBUTES \(\"HasNoChildren\") :HIERARCHY-DELIMITER \".\" :NAME
+  \"INBOX.Drafts\")
+ \(:NAME-ATTRIBUTES \(\"HasNoChildren\") :HIERARCHY-DELIMITER \".\" :NAME
+  \"INBOX.sent-mail\")
+ \(:NAME-ATTRIBUTES \(\"HasNoChildren\") :HIERARCHY-DELIMITER \".\" :NAME
+  \"INBOX.Sent\"))"
+  (%parse-list "LSUB" reply))
+
+(defun %parse-list (cmd reply)
+  (let ((start (format nil "* ~A " cmd))
         (*read-eval* nil))
     (loop for line in reply
           when (starts-with start line)
        collect (read-from-string (cl-ppcre:regex-replace 
-                                  "^\\*\\sLIST\\s\\((.*?)\\)\\s(\\\"[^\\\"]*\\\")\\s(\\\"[^\\\"]*\\\")"
+                                  (format nil "^\\*\\s~A\\s\\((.*?)\\)\\s(\\\"[^\\\"]*\\\")\\s(\\\"[^\\\"]*\\\")" cmd)
                                   line
                                   #'(lambda (match &rest registers)
                                       (declare (ignore match))

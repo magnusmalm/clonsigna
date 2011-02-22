@@ -40,6 +40,7 @@
            #:most-recents-from-parsed-thread
            #:parse-capability
            #:parse-list
+           #:parse-lsub
            #:parse-select
            #:parse-examine
            #:parse-namespace
@@ -91,6 +92,7 @@
            #:cmd-list
            #:cmd-subscribe
            #:cmd-unsubscribe
+           #:cmd-lsub
            #:cmd-append
            #:cmd-status
            #:cmd-check

@@ -60,21 +60,24 @@
           (base64:base64-string-to-usb8-array string))))
 
 (defun %quoted-char-decode (char-code &key (external-format :utf-8))
-  (format nil "~a" (octets-to-string (coerce (list char-code) '(vector (unsigned-byte 8))) 
-                                            :external-format (if (stringp external-format) 
-                                                                 (intern (string-upcase external-format) :keyword)
-                                                                 external-format))))
+  (let ((l (if (listp char-code) char-code (list char-code))))
+    (format nil "~a" (octets-to-string (coerce l '(vector (unsigned-byte 8))) 
+                                      :external-format (if (stringp external-format) 
+                                                           (intern (string-upcase external-format) :keyword)
+                                                           external-format)))))
 
 (defun %quoted-decode (string &key (external-format :utf-8) (attribute-p t))
   (let ((sentence (or (and attribute-p (cl-ppcre:regex-replace-all "_" string " "))
                       (cl-ppcre:regex-replace-all "=\\n" string ""))))
-    (cl-ppcre:regex-replace-all "=([0-9,A-F]{2})"
+    (cl-ppcre:regex-replace-all "(=[0-9,A-F]{2})+"
                                 sentence
-                                #'(lambda (match &rest registers)
-                                    (declare (ignore match))
-                                    (%quoted-char-decode 
-                                     (parse-integer (subseq sentence (elt (nth 4 registers) 0) (elt (nth 5 registers) 0)) :radix 16)
-                                     :external-format external-format)))))
+                                #'(lambda (match register)
+                                    (declare (ignore register))
+                                    (clonsigna::%quoted-char-decode 
+                                     (loop for i from 0 below (length match) by 3
+                                        collect (parse-integer (subseq match (+ i 1) (+ i 3)) :radix 16))
+                                     :external-format external-format))
+                                :simple-calls t)))
 
 
 (defun decode-string (string)
