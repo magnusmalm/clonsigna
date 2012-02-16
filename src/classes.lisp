@@ -131,7 +131,7 @@ It's usually instantiated by the MAKE-IMAP function and activated by CMD-CONNECT
   (imap-socket-flush-buffer is)
   (let ((s (imap-socket-socket is))
         (line-term (format nil "~a~a" #\Return #\Linefeed))
-        (format-string "~a ~a ~{~a~^ ~}~a"))
+        (format-string "~a ~a~{ ~a~}~a"))
     (imap-socket-next-message is)
     (when +debug+
       (format t format-string (imap-socket-message-id is) (symbol-name command)  args line-term))
