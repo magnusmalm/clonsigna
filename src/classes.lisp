@@ -130,11 +130,12 @@ It's usually instantiated by the MAKE-IMAP function and activated by CMD-CONNECT
 (defmethod imap-socket-send-command ((is imap-socket) command &rest args)
   (imap-socket-flush-buffer is)
   (let ((s (imap-socket-socket is))
-        (line-term (format nil "~a~a" #\Return #\Linefeed)))
+        (line-term (format nil "~a~a" #\Return #\Linefeed))
+	(clean-args (remove-if #'(lambda (s) (or (string-equal s "") (null s))) args)))
     (imap-socket-next-message is)
     (when +debug+
-      (format t "~a ~a~{ ~a~}~a" (imap-socket-message-id is) (symbol-name command)  args line-term))
-    (format s "~a ~a~{ ~a~}~a" (imap-socket-message-id is) (symbol-name command)  args line-term)
+      (format t "~a ~a~{ ~a~}~a" (imap-socket-message-id is) (symbol-name command)  clean-args line-term))
+    (format s "~a ~a~{ ~a~}~a" (imap-socket-message-id is) (symbol-name command)  clean-args line-term)
     (finish-output s)))
 
 (defmethod imap-socket-has-capability ((is imap-socket) capability)
