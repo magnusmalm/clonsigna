@@ -404,6 +404,21 @@ On success returns triplet of values:
 
 On failure a condition of type OPERATIONAL-ERROR or SERVER-ERROR will be signaled."))
 
+(defgeneric cmd-store (imap-socket sequence-number &key flags uid-p)
+  (:documentation "Performs an IMAP STORE or UID STORE \(rfc3501) command.
+
+SEQUENCE-NUMBER Sequence set as defined in rfc3501 is a number or a list of numbers
+FLAGS The flags to store as specified in rfc3501.
+UID-P When not null performs an UID MOVE instead of a simple MOVE command.
+SILENT-P When not null, do not return updated value
+
+On success returns triplet of values:
+1) reply list of strings
+2) result-op alway OK
+3) the result-op description \(what comes after OK in the IMAP reply.
+
+On failure a condition of type OPERATIONAL-ERROR or SERVER-ERROR will be signaled."))
+
 (defgeneric %pathname-to-mailbox (imap-socket pathname &optional ends-with-separator-p))
 
 (defmethod %pathname-to-mailbox ((is imap-socket) pathname &optional (ends-with-separator-p nil))
@@ -602,3 +617,9 @@ On failure a condition of type OPERATIONAL-ERROR or SERVER-ERROR will be signale
   (let ((encoded-auth (base64:string-to-base64-string (format nil "~c~a~c~a" #\Nul login #\Nul password))))
     (imap-socket-send-command is :authenticate "PLAIN" encoded-auth)
     (imap-socket-read-reply is)))
+
+(defmethod cmd-store ((is imap-socket) sequence-number &key flags uid-p)
+  (if uid-p
+      (imap-socket-send-command is :uid :store sequence-number flags)
+      (imap-socket-send-command is :store sequence-number flags))
+  (imap-socket-read-reply is))
