@@ -1,1 +1,3 @@
+Forked from https://gitlab.common-lisp.net/clonsigna/clonsigna
+
 Currently works only with SBCL due to loack of external-formats of flexi-streams
