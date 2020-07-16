@@ -106,7 +106,10 @@
            #:cmd-sort
            #:cmd-starttls
            #:cmd-authenticate-plain
-           #:cmd-noop))
+           #:cmd-noop
+	   #:cmd-store
+	   #:cmd-idle
+	   #:cmd-done))
 
 (in-package :clonsigna)
 
@@ -119,8 +122,8 @@ Api generation:
 
 (asdf:oos 'asdf:load-op :cl-api)
 (api-gen :clonsigna #P"/tmp/"
-         :exclude-func (lambda (s) (or (starts-with "imap" (format nil "~a" s))
-                                       (starts-with "bodystructure" (format nil "~a" s))
-                                       (starts-with "structure" (format nil "~a" s)))))
+:exclude-func (lambda (s) (or (starts-with "imap" (format nil "~a" s))
+(starts-with "bodystructure" (format nil "~a" s))
+(starts-with "structure" (format nil "~a" s)))))
 
 |#

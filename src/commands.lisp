@@ -419,6 +419,26 @@ On success returns triplet of values:
 
 On failure a condition of type OPERATIONAL-ERROR or SERVER-ERROR will be signaled."))
 
+(defgeneric cmd-idle (imap-socket)
+  (:documentation "Performs an IMAP IDLE \(rfc2177) command.
+
+On success returns triplet of values:
+1) reply list of strings
+2) result-op alway OK
+3) the result-op description \(what comes after OK in the IMAP reply.
+
+On failure a condition of type OPERATIONAL-ERROR or SERVER-ERROR will be signaled."))
+
+(defgeneric cmd-done (imap-socket)
+  (:documentation "Performs an IMAP DONE \(rfc2177) command.
+
+On success returns triplet of values:
+1) reply list of strings
+2) result-op alway OK
+3) the result-op description \(what comes after OK in the IMAP reply.
+
+On failure a condition of type OPERATIONAL-ERROR or SERVER-ERROR will be signaled."))
+
 (defgeneric %pathname-to-mailbox (imap-socket pathname &optional ends-with-separator-p))
 
 (defmethod %pathname-to-mailbox ((is imap-socket) pathname &optional (ends-with-separator-p nil))
@@ -622,4 +642,12 @@ On failure a condition of type OPERATIONAL-ERROR or SERVER-ERROR will be signale
   (if uid-p
       (imap-socket-send-command is :uid :store sequence-number flags)
       (imap-socket-send-command is :store sequence-number flags))
+  (imap-socket-read-reply is))
+
+(defmethod cmd-idle ((is imap-socket))
+  (imap-socket-send-command is :idle)
+  (imap-socket-read-reply is))
+
+(defmethod cmd-done ((is imap-socket))
+  (imap-socket-send-command is :done)
   (imap-socket-read-reply is))
